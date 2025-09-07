@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Details</title>
+    <!-- Link to Boxicons CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #e0f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .profile-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 350px;
+        }
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            background-color: #b2ebf2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 100px;
+            color: #007bff;
+            border: 2px solid #007bff;
+        }
+        .user-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+        .user-details {
+            margin-top: 15px;
+            text-align: left;
+        }
+        .user-details p {
+            font-size: 1.1em;
+            margin: 10px 0;
+            color: #333333;
+            display: flex;
+            align-items: center;
+        }
+        .user-details span {
+            margin-left: 10px;
+            font-weight: 600;
+        }
+        .back-button {
+            margin-top: 25px;
+            padding: 12px 25px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-pic" id="profilePic">
+            <!-- Profile image or icon will be displayed here -->
+        </div>
+        <h2 class="user-name" id="userName"></h2>
+        <div class="user-details">
+            <p><i class="bx bx-envelope"></i><span id="userEmail"></span></p>
+            <p><i class="bx bx-phone"></i><span id="userPhone"></span></p>
+            <p><i class="bx bx-user"></i><span id="userGender"></span></p>
+        </div>
+        <button class="back-button" onclick="goBack()">Edit Profile</button>
+    </div>
+
+    <script>
+        // Load user details from localStorage
+        document.getElementById('userName').innerText = localStorage.getItem('userName') || 'Your Name';
+        document.getElementById('userEmail').innerText = localStorage.getItem('userEmail') || 'Your Email';
+        document.getElementById('userPhone').innerText = localStorage.getItem('userPhone') || 'Your Phone Number';
+        document.getElementById('userGender').innerText = localStorage.getItem('userGender') || 'Your Gender';
+
+        // Load the profile picture from localStorage
+        const profilePicData = localStorage.getItem('profilePic');
+        if (profilePicData) {
+            const profilePic = document.getElementById('profilePic');
+            profilePic.style.backgroundImage = `url(${profilePicData})`;
+            profilePic.style.backgroundSize = 'cover';
+            profilePic.style.backgroundPosition = 'center';
+            profilePic.style.border = 'none';
+        } else {
+            document.getElementById('profilePic').innerHTML = '<i class="bx bx-user-circle"></i>';
+        }
+
+        function goBack() {
+            window.location.href = 'profile.html';
+        }
+    </script>
+</body>
+</html>

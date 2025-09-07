@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel="stylesheet">
+    <title>Project Gallery with Sidebar and Search</title>
+    <style>
+        /* Basic reset for margins and paddings */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #6d5dfc, #d8b5ff);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Hamburger menu styling */
+        .hamburger-menu {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 24px;
+            z-index: 1000;
+        }
+
+        .hamburger-menu .line {
+            background-color: #fff;
+            height: 4px;
+            border-radius: 2px;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+
+        /* Rotate and change opacity of lines when active */
+        .hamburger-menu.active .line:nth-child(1) {
+            transform: translateY(10px) rotate(45deg);
+        }
+
+        .hamburger-menu.active .line:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-menu.active .line:nth-child(3) {
+            transform: translateY(-10px) rotate(-45deg);
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            width: 250px;
+            background-color: #222;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 30px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+            position: fixed;
+            top: 0;
+            left: -250px;
+            height: 100%;
+            transition: left 0.3s;
+            z-index: 999;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar li {
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            transition: background 0.3s;
+        }
+
+        .sidebar a img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        /* Main content styling */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            margin-left: 270px; /* Adjusted to create space for sidebar */
+            overflow-y: auto;
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar.active ~ .main-content {
+            margin-left: 270px; /* Adjusted margin when sidebar is active */
+        }
+
+        /* Gallery container styling */
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        /* Each project block */
+        .project {
+            position: relative;
+            width: 300px;
+            height: 300px; /* Increased height to accommodate descriptions */
+            overflow: hidden;
+            cursor: pointer;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            background: #fff; /* Add background to project block */
+            padding: 10px; /* Padding to create space around content */
+        }
+
+        /* Title and description above image */
+        .project-title {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+            color: #333;
+            text-align: center;
+        }
+
+        .project-description {
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            color: #777;
+            text-align: center;
+        }
+
+        /* Image styling */
+        .project img {
+            width: 100%;
+            height: 150px; /* Fixed height for images */
+            object-fit: cover;
+            border-radius: 10px;
+            transition: opacity 0.3s;
+        }
+
+        /* Overlay styling */
+        .overlay {
+            position: absolute;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            width: 100%;
+            height: 60px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .project:hover .overlay {
+            opacity: 1;
+        }
+
+        .project:hover img {
+            opacity: 0.7;
+        }
+
+        .project h2 {
+            margin: 10px 0 0;
+            font-size: 1.2em;
+        }
+
+        .project p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+
+        .project:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar.active ~ .main-content {
+                margin-left: 270px;
+            }
+        }
+
+        #boxcon {
+            padding: 5px;
+        }
+
+        /* Search bar styling */
+        .search-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin: 20px 0; /* Adjust margin to position search bar at the top */
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            border-radius: 50px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 10px 20px;
+            transition: width 0.3s, transform 0.3s;
+            position: relative;
+            width: 50px; /* Initial width when only showing the icon */
+            overflow: hidden;
+        }
+
+        .search-bar input {
+            width: 0;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 50px;
+            transition: width 0.3s;
+        }
+
+        .search-bar.active {
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .search-bar.active input {
+            width: 100%;
+        }
+
+        .search-bar button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            right: 10px;
+        }
+
+        .search-bar button i {
+            font-size: 24px;
+            color: #6d5dfc;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Additional styling for the heading and description */
+        .intro {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            font-family: 'Georgia', serif;
+            color: #333;
+        }
+
+        .intro h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #4a47a3;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .intro p {
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        .intro span {
+            font-style: italic;
+            color: #6d5dfc;
+            font-weight: bold;
+        }
+
+        /* Logout button styling */
+        .logout-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: red; /* Red color for the logout button */
+            display: flex;
+            align-items: center;
+        }
+
+        .logout-button i {
+            font-size: 24px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="hamburger-menu" id="hamburgerMenu" onclick="toggleSidebar()">
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+    </div>
+
+    <!-- Logout button added -->
+    <button class="logout-button" onclick="logout()">
+        <i class='bx bx-log-out-circle'></i> Logout
+    </button>
+
+    <div class="sidebar active" id="sidebar">
+        <ul>
+            <li><a href="#"><i class='bx bxs-home' id="boxcon"></i>Home</a></li>
+            <li><a href="about_us.html"><i class='bx bx-crown' id="boxcon"></i>About</a></li>
+            <li><a href="create_profile.html"><i class='bx bx-group' id="boxcon"></i>Profile</a></li>
+            <li><a href="#"><i class='bx bx-phone-call' id="boxcon"></i> contact</a></li>
+            <!-- <li><a href="history.html"><i class='bx bx-time-five' id="boxcon"></i>history</a></li> -->
+            <li><a href="home page.html"><i class='bx bx-log-out-circle' id="boxcon"></i> logout</a></li>
+            <!-- Add more sidebar links as needed -->
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <!-- Search bar at the top -->
+        <div class="search-container">
+            <div class="search-bar" id="searchBar">
+                <input type="text" id="searchInput" placeholder="Search projects..." onkeyup="filterProjects()">
+                <button onclick="toggleSearch()"><i class='bx bx-search'></i></button>
+            </div>
+        </div>
+
+        <div class="intro">
+            <h1>Welcome to Our Project Gallery</h1>
+            <p>Explore our diverse collection of projects and find something that <span>inspires</span> you. Click on any project to view more details and get started on your next adventure!</p>
+        </div>
+
+        <div class="gallery" id="projects">
+            <div class="project" onclick="openProject('contentwriter.html', 'Content writer')">
+                <div class="project-title">Content Writer</div>
+                <div class="project-description">Create compelling content for blogs, websites, and more.</div>
+                <img src="/home/user/Desktop/welcomeintro/projectsinterface/typewriter-8622984_1280.jpg" alt="Content writer">
+                <div class="overlay">
+                    <h2>Content Writer</h2>
+                    <p>Click to view details</p>
+                </div>
+            </div>
+            <div class="project" onclick="openProject('quizanswer/public/quizanswering.html', 'Answer quiz questions')">
+                <div class="project-title">Answer Quiz Questions</div>
+                <div class="project-description">Test your knowledge with a variety of quiz questions.</div>
+                <img src="/home/user/Desktop/welcomeintro/projectsinterface/quiz-1799934_640.webp" alt="Answer quiz questions">
+                <div class="overlay">
+                    <h2>Answer Quiz Questions</h2>
+                    <p>Click to view details</p>
+                </div>
+            </div>
+            <div class="project" onclick="openProject('chat-app/public/index.html', 'chat with random')">
+                <div class="project-title">Chatting with random</div>
+                <div class="project-description">Engage in real-time conversations with others.</div>
+                <img src="/home/user/Desktop/welcomeintro/projectsinterface/hands-1853302_640.jpg" alt="Chatting">
+                <div class="overlay">
+                    <h2>Chatting</h2>
+                    <p>Click to view details</p>
+                </div>
+            </div>
+            <div class="project" onclick="openProject('health_benifits.html', 'health_benifits')">
+                <div class="project-title">Health Benifits</div>
+                <div class="project-description">We have give suggestion for health </div>
+                <img src="/home/user/Desktop/welcomeintro/projectsinterface/nectarine-2409370_640.jpg" alt="Audio Recording">
+                <div class="overlay">
+                    <h2>Audio Recording</h2>
+                    <p>Click to view details</p>
+                </div>
+            </div>
+            <!-- Repeat for other projects -->
+            <!-- Example placeholders for additional projects -->
+            <div class="project" onclick="openProject('quizcreation/public/create_quiz.html', 'Create quiz')">
+                <div class="project-title">Create quiz</div>
+                <div class="project-description">A brief description of Create quiz goes here.</div>
+                <img src="/home/user/Desktop/welcomeintro/projectsinterface/quiz-2432440_640.webp" alt="Project 5">
+                <div class="overlay">
+                    <h2>Project 5</h2>
+                    <p>Click to view details</p>
+                </div>
+            </div>
+         <div class="project" <!--onclick="openProject('project.html', 'Project 6')" --> >
+                <div class="project-title">Coming soon in updated version</div>
+                <div class="project-description">A brief description of Project 6 goes here.</div>
+                <img src="images/project6.jpg" alt="Project 6">
+                <div class="overlay">
+                    <h2>Project 6</h2>
+                    <p>Click to view details</p>
+                </div>
+            </div>
+             <div class="project" <!--onclick="openProject('project7.html', 'Project 7')" --> > 
+                <div class="project-title">Coming soon in updated version</div>
+                <div class="project-description">A brief description of Project 7 goes here.</div>
+                <img src="images/project7.jpg" alt="Project 7">
+                <div class="overlay">
+                    <h2>Project 7</h2>
+                    <p>Click to view details</p>
+                </div>
+            </div>
+            <div class="project" >
+                <div class="project-title">Coming soon in updated version</div>
+                <div class="project-description">A brief description of Project 8 goes here.</div>
+                <img src="images/project8.jpg" alt="Project 8">
+                <div class="overlay">
+                    <h2>Project 8</h2>
+                    <p>Click to view details</p>
+                </div>
+            </div>
+            <div class="project" >
+                <div class="project-title">Coming soon in updated version</div>
+                <div class="project-description">A brief description of Project 9 goes here.</div>
+                <img src="images/project9.jpg" alt="Project 9">
+                <div class="overlay">
+                    <h2>Project 9</h2>
+                    <p>Click to view details</p>
+                </div>
+            </div>
+            <div class="project" >
+                <div class="project-title">Coming soon in updated version</div>
+                <div class="project-description">A brief description of Project 10 goes here.</div>
+                <img src="images/project10.jpg" alt="Project 10">
+                <div class="overlay">
+                    <h2>Project 10</h2>
+                    <p>Click to view details</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar toggle functionality
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const hamburgerMenu = document.getElementById('hamburgerMenu');
+            sidebar.classList.toggle('active');
+            hamburgerMenu.classList.toggle('active');
+        }
+
+        // Ensure the sidebar is active on page load
+        window.onload = () => {
+            document.getElementById('sidebar').classList.add('active');
+        }
+
+        // Project search functionality
+        function filterProjects() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const projects = document.getElementsByClassName('project');
+
+            for (let i = 0; i < projects.length; i++) {
+                const project = projects[i];
+                const title = project.getElementsByClassName('project-title')[0].innerText.toLowerCase();
+
+                if (title.includes(filter)) {
+                    project.style.display = "";
+                } else {
+                    project.style.display = "none";
+                }
+            }
+        }
+
+        // Project click functionality
+        function openProject(url, title) {
+            alert(`Opening project: ${title}`);
+            window.location.href = url;
+        }
+
+        // Search bar animation functionality
+        function toggleSearch() {
+            const searchBar = document.getElementById('searchBar');
+            searchBar.classList.toggle('active');
+        }
+
+        // Logout functionality
+        function logout() {
+            window.location.href = 'home page.html';
+            alert("You have been logged out!");
+            // Add actual logout logic here
+        }
+    </script>
+</body>
+</html>

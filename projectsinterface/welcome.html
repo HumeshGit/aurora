@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Welcome Animation</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, #1d2b64, #f8cdda);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .welcome-container {
+            text-align: center;
+            perspective: 1000px;
+        }
+
+        .welcome-text {
+            font-size: 3rem;
+            color: #fff;
+            opacity: 0;
+            animation: textEntrance 2s ease-out forwards;
+        }
+
+        .welcome-text span {
+            display: inline-block;
+            animation: bounce 1.5s infinite alternate;
+        }
+
+        .welcome-text span:nth-child(1) { animation-delay: 0s; }
+        .welcome-text span:nth-child(2) { animation-delay: 0.1s; }
+        .welcome-text span:nth-child(3) { animation-delay: 0.2s; }
+        .welcome-text span:nth-child(4) { animation-delay: 0.3s; }
+        .welcome-text span:nth-child(5) { animation-delay: 0.4s; }
+        .welcome-text span:nth-child(6) { animation-delay: 0.5s; }
+        .welcome-text span:nth-child(7) { animation-delay: 0.6s; }
+        .welcome-text span:nth-child(8) { animation-delay: 0.7s; }
+
+        @keyframes textEntrance {
+            0% { opacity: 0; transform: rotateY(90deg); }
+            100% { opacity: 1; transform: rotateY(0deg); }
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-20px); }
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-50px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-container">
+        <h1 class="welcome-text">
+            <span>W</span>
+            <span>E</span>
+            <span>L</span>
+            <span>C</span>
+            <span>O</span>
+            <span>M</span>
+            <span>E</span>
+        </h1>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const welcomeText = document.querySelector(".welcome-text");
+
+            setTimeout(() => {
+                welcomeText.style.animation = "fadeOut 2s ease-in-out forwards";
+                setTimeout(() => {
+                    window.location.href = 'home page.html'; // Redirect to home page
+                }, 2000); // Wait for fadeOut animation duration
+            }, 6000); // Adjust this delay as needed
+        });
+    </script>
+</body>
+</html>

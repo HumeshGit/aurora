@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Match Chat</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #ece5dd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .chat-container {
+      width: 400px;
+      max-width: 100%;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background-color: #075e54;
+      color: white;
+      padding: 10px;
+      font-size: 18px;
+    }
+
+    .typing {
+      padding: 4px 10px;
+      color: #666;
+      font-style: italic;
+      font-size: 14px;
+      min-height: 18px;
+    }
+
+    #messages {
+      flex: 1;
+      padding: 10px;
+      background: #e5ddd5;
+      overflow-y: auto;
+    }
+
+    .msg {
+      margin: 5px 0;
+      padding: 10px 14px;
+      border-radius: 8px;
+      max-width: 75%;
+      word-wrap: break-word;
+      clear: both;
+    }
+
+    .msg.you {
+      background-color: #dcf8c6;
+      align-self: flex-end;
+      float: right;
+      text-align: right;
+    }
+
+    .msg.partner {
+      background-color: #ffffff;
+      align-self: flex-start;
+      float: left;
+      text-align: left;
+    }
+
+    .input-area {
+      display: flex;
+      border-top: 1px solid #ccc;
+      background: #f0f0f0;
+      padding: 5px;
+    }
+
+    .input-area input {
+      flex: 1;
+      padding: 10px;
+      font-size: 14px;
+      border: none;
+      border-radius: 20px;
+      outline: none;
+      margin-right: 8px;
+    }
+
+    .input-area button {
+      padding: 10px 14px;
+      background: #25d366;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    #usernameSection {
+      text-align: center;
+      padding: 20px;
+    }
+
+    #username {
+      padding: 8px;
+      margin-right: 10px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+    }
+
+    #join, #check {
+      background-color: #128c7e;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    #roomUI {
+      display: none;
+      flex-direction: column;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .msg {
+      animation: slideIn 0.25s ease forwards;
+    }
+  </style>
+</head>
+<body>
+
+<div class="chat-container">
+  <div id="usernameSection">
+    <input id="username" placeholder="Enter your name" />
+    <button id="join">Join Chat</button>
+  </div>
+
+  <div id="roomUI">
+    <div class="header" id="chatheader">Match Chat</div>
+    <div class="typing" id="typing"></div>
+    <button id="check">Find a Match</button>
+    <div id="countdown" style="margin: 10px 0; color: #555;"></div>
+    <div id="matchStatus" style="color: green; font-weight: bold; display: none; margin: 8px 0;"></div>
+    <div id="chat" style="display:none; flex: 1; flex-direction: column;">
+      <div id="messages"></div>
+      <div class="input-area">
+        <input id="msg" placeholder="Type a message..." />
+        <button id="send">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  let currentRoom = '';
+
+  document.getElementById('msg').addEventListener('input', () => {
+    socket.emit('typing', { room: currentRoom });
+  });
+
+  socket.on('show_typing', (username) => {
+    const typing = document.getElementById('typing');
+    typing.textContent = `${username} is typing...`;
+    setTimeout(() => typing.textContent = '', 2000);
+  });
+
+  document.getElementById('join').onclick = () => {
+    const username = document.getElementById('username').value.trim();
+    if (username) {
+      socket.emit('register', username);
+      document.getElementById('roomUI').style.display = 'flex';
+      document.getElementById('join').disabled = true;
+      document.getElementById('username').disabled = true;
+    }
+  };
+
+  let currentMatchInterval = null;
+  let waitingForMatch = false;
+  
+  document.getElementById('check').onclick = () => {
+    if (waitingForMatch) return; // prevent duplicate clicks
+    waitingForMatch = true;
+    
+    socket.emit('check_online');
+    const countdownEl = document.getElementById('countdown');
+    const matchStatusEl = document.getElementById('matchStatus');
+    let remaining = 20;
+
+    countdownEl.textContent = `Searching for a match... (${remaining}s)`;
+    matchStatusEl.style.display = 'none';
+    matchStatusEl.textContent = '';
+    
+    currentMatchInterval = setInterval(() => {
+      remaining--;
+      countdownEl.textContent = `Searching for a match... (${remaining}s)`;
+
+      if (remaining <= 0) {
+        clearInterval(currentMatchInterval);
+        countdownEl.textContent = "No users found.";
+        waitingForMatch = false;
+      }
+    }, 1000);
+    
+    socket.once('chat_start', ({room , partner}) => {
+      currentRoom = room;
+      
+      matchStatusEl.style.display = 'block';
+      matchStatusEl.textContent = '1 User Found';
+
+      //Stop countdown and reset
+      clearInterval(currentMatchInterval);
+      countdownEl.textContent = '';
+      waitingForMatch = false;
+
+      document.getElementById('chat').style.display = 'flex';
+      document.getElementById('chatheader').textContent = `You are now chatting with ${partner}`;
+      document.getElementById('send').disabled = false;
+      document.getElementById('msg').disabled = false;
+      clearMessages();
+    });
+    
+    socket.once('no_users', () => {
+      clearInterval(currentMatchInterval);
+      countdownEl.textContent = "No users found.";
+      alert('No users online to chat.');
+      waitingForMatch = false;
+    });
+};
+
+  document.getElementById('send').onclick = () => {
+    const msg = document.getElementById('msg').value.trim();
+    if (msg) {
+      appendMessage( msg, 'you');
+      socket.emit('chat_message', { room: currentRoom, message: msg });
+      document.getElementById('msg').value = '';
+    }
+  };
+
+  socket.on('no_users', () => {
+    alert('No users online to chat.');
+  });
+
+
+
+  socket.on('chat_message', ({ message }) => {
+    appendMessage(message, 'partner');
+  });
+
+  socket.on('partner_left', (text) => {
+    appendMessage(text, 'partner');
+    document.getElementById('send').disabled = true;
+    document.getElementById('msg').disabled = true;
+  });
+
+  function appendMessage(text, sender = 'partner') {
+    const div = document.createElement('div');
+    div.textContent = text;
+    div.className = `msg ${sender}`;
+    document.getElementById('messages').appendChild(div);
+    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+  }
+
+  function clearMessages() {
+    document.getElementById('messages').innerHTML = '';
+  }
+</script>
+</body>
+</html>

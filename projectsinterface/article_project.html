@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Article Workspace</title>
+    <link href="https://unpkg.com/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #0056b3;
+            --background-color: #f0f0f0;
+            --toolbar-bg: #fff;
+            --workspace-bg: #fff;
+            --side-space-bg: #e0e0e0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        #toolbar {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: var(--toolbar-bg);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+            overflow-x: auto;
+            max-width: 100%;
+            z-index: 10;
+        }
+
+        #content-container {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            position: relative;
+        }
+
+        .draggable {
+            position: absolute;
+            cursor: move;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+            background-color: var(--side-space-bg);
+            min-height: 300px;
+            min-width: 200px;
+            border-radius: 8px;
+            padding: 20px;
+            box-sizing: border-box;
+            resize: both;
+            overflow: auto;
+            z-index: 5;
+            display: none; /* Hide initially */
+        }
+
+        #workspace-container {
+            flex: 2;
+            max-width: 800px;
+        }
+
+        #workspace {
+            width: 100%;
+            min-height: 300px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: var(--workspace-bg);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: auto;
+            box-sizing: border-box;
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        .toolbar-button {
+            margin: 5px;
+            padding: 12px;
+            border: none;
+            background-color: transparent;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 24px;
+            touch-action: manipulation;
+        }
+
+        .toolbar-button:hover {
+            color: var(--secondary-color);
+        }
+
+        .toolbar-color-input {
+            margin: 5px;
+            padding: 5px;
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .toolbar-label {
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .toolbar-select, .toolbar-input {
+            margin: 5px;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 1024px) {
+            #content-container {
+                flex-direction: column;
+            }
+
+            .draggable {
+                width: 100%;
+                margin: 10px 0;
+            }
+
+            #workspace-container {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #toolbar {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .toolbar-button {
+                padding: 12px;
+            }
+        }
+
+        .delete-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            cursor: pointer;
+            z-index: 20; /* Ensure the button is clickable */
+        }
+    </style>
+</head>
+<body class="smooth-scroll">
+    <div id="toolbar" role="toolbar" aria-label="Formatting options">
+        <button class="toolbar-button" onclick="undo()" aria-label="Undo"><i class='bx bx-undo'></i></button>
+        <button class="toolbar-button" onclick="redo()" aria-label="Redo"><i class='bx bx-redo'></i></button>
+        <button class="toolbar-button" onclick="selectAll()" aria-label="Select All"><i class='bx bx-select-multiple'></i></button>
+        <button class="toolbar-button" onclick="addImage()" aria-label="Add image"><i class='bx bx-image-add'></i></button>
+        <input type="file" id="imageInput" accept="image/*" onchange="insertImage(event)">
+        <div class="toolbar-label">
+            <label for="fontSize">Font Size:</label>
+            <input type="number" id="fontSize" class="toolbar-input" value="16" style="width: 60px;" aria-label="Font size">
+            <button class="toolbar-button" onclick="applyFontSize()" aria-label="Apply font size"><i class='bx bx-check'></i></button>
+        </div>
+        <div class="toolbar-label">
+            <button class="toolbar-button" onclick="setFontColor()" aria-label="Set font color"><i class='bx bx-font'></i></button>
+            <input type="color" id="fontColor" class="toolbar-color-input" value="#000000" aria-label="Choose font color">
+        </div>
+        <div class="toolbar-label">
+            <button class="toolbar-button" onclick="setBgColor()" aria-label="Set background color"><i class='bx bx-highlight'></i></button>
+            <input type="color" id="bgColor" class="toolbar-color-input" value="#ffffff" aria-label="Choose background color">
+        </div>
+        <button class="toolbar-button" onclick="setIndentation()" aria-label="Increase indentation"><i class='bx bx-indent'></i></button>
+        <button class="toolbar-button" onclick="removeIndentation()" aria-label="Decrease indentation"><i class='bx bx-outdent'></i></button>
+        <div class="toolbar-label">
+            <label for="fontFamily">Font:</label>
+            <select id="fontFamily" class="toolbar-select" onchange="setFontFamily(this.value)" aria-label="Choose font family">
+                <option value="Arial">Arial</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Verdana">Verdana</option>
+            </select>
+        </div>
+        <button class="toolbar-button" onclick="createRoughSpace()" aria-label="Create Rough Space"><i class='bx bx-plus'></i></button>
+        <input type="text" id="mobileTextInput" class="toolbar-input" placeholder="Enter text for rough space" aria-label="Text input for rough space">
+        <button class="toolbar-button" onclick="sendTextToRoughSpace()" aria-label="Send text to rough space"><i class='bx bx-send'></i></button>
+    </div>
+    <div id="content-container">
+        <div id="workspace-container">
+            <div id="workspace" contenteditable="true" role="textbox" aria-multiline="true"></div>
+        </div>
+    </div>
+
+    <script>
+        const workspace = document.getElementById('workspace');
+        let undoStack = [];
+        let redoStack = [];
+        let currentRoughSpace = null;
+
+        workspace.addEventListener('input', function() {
+            undoStack.push(workspace.innerHTML);
+            redoStack = [];
+        });
+
+        // Prevent paste in main workspace
+        workspace.addEventListener('paste', function(e) {
+            e.preventDefault();
+        });
+
+        function undo() {
+            if (undoStack.length > 1) {
+                redoStack.push(undoStack.pop());
+                workspace.innerHTML = undoStack[undoStack.length - 1];
+            }
+        }
+
+        function redo() {
+            if (redoStack.length > 0) {
+                undoStack.push(redoStack.pop());
+                workspace.innerHTML = undoStack[undoStack.length - 1];
+            }
+        }
+
+        function selectAll() {
+            const range = document.createRange();
+            range.selectNodeContents(workspace);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+
+        function addImage() {
+            document.getElementById('imageInput').click();
+        }
+
+        function insertImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.maxWidth = '100%';
+                    img.style.height = 'auto';
+                    workspace.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function applyFontSize() {
+            const size = document.getElementById('fontSize').value;
+            document.execCommand('fontSize', false, size);
+        }
+
+        function setFontColor() {
+            const color = document.getElementById('fontColor').value;
+            document.execCommand('foreColor', false, color);
+        }
+
+        function setBgColor() {
+            const color = document.getElementById('bgColor').value;
+            document.execCommand('backColor', false, color);
+        }
+
+        function setIndentation() {
+            document.execCommand('indent', false, null);
+        }
+
+        function removeIndentation() {
+            document.execCommand('outdent', false, null);
+        }
+
+        function setFontFamily(font) {
+            document.execCommand('fontName', false, font);
+        }
+
+        function createRoughSpace() {
+            const roughSpace = document.createElement('div');
+            roughSpace.className = 'draggable';
+            roughSpace.contentEditable = true;
+            roughSpace.style.left = '50px';
+            roughSpace.style.top = '50px';
+            roughSpace.id = 'roughSpace-' + new Date().getTime();
+            roughSpace.style.position = 'absolute';
+
+            const deleteButton = document.createElement('button');
+            deleteButton.innerHTML = 'X';
+            deleteButton.className = 'delete-button';
+            deleteButton.onclick = function() {
+                roughSpace.remove();
+            };
+            roughSpace.appendChild(deleteButton);
+            document.getElementById('content-container').appendChild(roughSpace);
+            selectRoughSpace(roughSpace.id);
+        }
+
+        function selectRoughSpace(id) {
+            if (currentRoughSpace) {
+                currentRoughSpace.classList.remove('selected');
+            }
+            currentRoughSpace = document.getElementById(id);
+            if (currentRoughSpace) {
+                currentRoughSpace.classList.add('selected');
+            }
+        }
+
+        function sendTextToRoughSpace() {
+            if (currentRoughSpace) {
+                const text = document.getElementById('mobileTextInput').value;
+                currentRoughSpace.innerHTML = text;
+            }
+        }
+
+        function dragstart(event) {
+            event.target.style.zIndex = 10;
+        }
+
+        function dragend(event) {
+            const dropX = event.clientX;
+            const dropY = event.clientY;
+            event.target.style.position = 'absolute';
+            event.target.style.left = dropX + 'px';
+            event.target.style.top = dropY + 'px';
+            event.target.style.zIndex = ''; // Reset zIndex
+            removeOffScreenRoughSpaces(); // Check for off-screen rough spaces
+        }
+
+        function dragover(event) {
+            event.preventDefault();
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const data = event.dataTransfer.getData('text/plain');
+            const target = document.getElementById(data);
+            if (target) {
+                target.style.left = event.clientX + 'px';
+                target.style.top = event.clientY + 'px';
+                target.style.zIndex = ''; // Reset zIndex
+            }
+        }
+
+        function handleTouchStart(e) {
+            if (e.target.classList.contains('draggable')) {
+                const touch = e.touches[0];
+                e.target.startX = touch.clientX;
+                e.target.startY = touch.clientY;
+                e.target.startLeft = parseInt(e.target.style.left) || 0;
+                e.target.startTop = parseInt(e.target.style.top) || 0;
+                e.target.addEventListener('touchmove', handleTouchMove);
+                e.target.addEventListener('touchend', handleTouchEnd);
+            }
+        }
+
+        function handleTouchMove(e) {
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - e.target.startX;
+            const deltaY = touch.clientY - e.target.startY;
+            e.target.style.left = (e.target.startLeft + deltaX) + 'px';
+            e.target.style.top = (e.target.startTop + deltaY) + 'px';
+            e.preventDefault();
+        }
+
+        function handleTouchEnd(e) {
+            e.target.removeEventListener('touchmove', handleTouchMove);
+            e.target.removeEventListener('touchend', handleTouchEnd);
+        }
+
+        function removeOffScreenRoughSpaces() {
+            const roughSpaces = document.getElementsByClassName('draggable');
+            for (let i = roughSpaces.length - 1; i >= 0; i--) {
+                const rect = roughSpaces[i].getBoundingClientRect();
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+
+                if (rect.right < 0 || rect.bottom < 0 || rect.left > viewportWidth || rect.top > viewportHeight) {
+                    roughSpaces[i].remove();
+                }
+            }
+        }
+
+        document.addEventListener('touchstart', handleTouchStart);
+        document.addEventListener('dragstart', dragstart);
+        document.addEventListener('dragend', dragend);
+        document.addEventListener('dragover', dragover);
+        document.addEventListener('drop', drop);
+    </script>
+</body>
+</html>
