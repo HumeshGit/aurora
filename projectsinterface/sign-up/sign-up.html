@@ -17,7 +17,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      background-image: url(/home/user/Desktop/welcomeintro/projectsinterface/beach-1751455_640.jpg); /* Update with your background image URL */
+      background-image: url(projectsinterface/beach-1751455_640.jpg); /* Update with your background image URL */
       background-repeat: no-repeat;
       background-size: cover;
     }
@@ -301,7 +301,7 @@
     // Redirect if cookie exists
     document.addEventListener('DOMContentLoaded', function () {
       if (getCookie('userSignedUp')) {
-        window.location.href = 'projectsdisplay.html';
+        window.location.href = 'pages/projectsdisplay.html';
       }
     });
   
@@ -333,7 +333,7 @@
           alert("✅ " + data.message);
           // Save cookie and redirect
           setCookie('userSignedUp', 'true', 7);
-          window.location.href = 'projectsdisplay.html';
+          window.location.href = 'pages/projectsdisplay.html';
         } else {
           alert("❌ Signup failed: " + (data.message || "Invalid data"));
         }
