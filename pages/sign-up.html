@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up Example</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-image: url(projectsinterface/beach-1751455_640.jpg); /* Update with your background image URL */
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    .wrapper {
+      position: relative;
+      width: 400px;
+      max-width: 95%;
+      height: auto;
+      border-radius: 40px;
+      padding: 30px;
+      background-color: rgba(255,255,255,0.2);
+      border: 2px solid black;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .form-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+
+    h2 {
+      position: relative;
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+
+    /* Make each input + its feedback stack vertically */
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 18px 0;
+      color: #ff00f2;
+      width: 100%;
+      align-items: flex-start;
+    }
+
+    .input-group input {
+      width: 100%;
+      max-width: 320px;
+      height: 40px;
+      background: transparent;
+      padding: 8px 12px;
+      border: 2px solid #000;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    /* password feedback sits clearly below the input */
+    .feedback {
+      color: red;
+      font-size: 0.9em;
+      margin: 0;
+      pointer-events: none; /* do not block clicks on the input */
+    }
+    .feedback.valid {
+      color: green;
+    }
+
+    .remember {
+      color: #000;
+      margin: 6px 0 15px 5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .remember label {
+      accent-color: #ff00f2;
+    }
+
+    a {
+      margin-left: 100px;
+      color: #00ff00;
+    }
+
+    button {
+      width: 320px;
+      max-width: 100%;
+      height: 40px;
+      background: transparent;
+      font-weight: 700;
+      overflow: hidden;
+      position: relative;
+      color: #fff;
+      border: 2px solid #ff00f2;
+      cursor: not-allowed; /* Initial state: cursor not allowed */
+      border-radius: 8px;
+      padding: 0 12px;
+      margin-top: 8px;
+    }
+    button::before {
+      content: "";
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, #f700ff, transparent);
+      transform: translateX(-100%);
+      transition: 0.6s;
+      position: absolute;
+    }
+    button:hover {
+      background: #ff00f2;
+      box-shadow: 0 0 20px 5px #ff00f2;
+      color: #000;
+    }
+    button.enabled {
+      cursor: pointer; /* Change cursor when enabled */
+    }
+
+    /* Keep thank-you hidden by default (you already had that) */
+    #signup-form.hidden { display: none; }
+
+    /* small responsive tweak for narrow screens */
+    @media (max-width: 420px) {
+      .wrapper { padding: 20px; border-radius: 20px; }
+      h2 { font-size: 24px; }
+      .input-group input { height: 44px; font-size: 15px; }
+      button { height: 44px; font-size: 16px; }
+      a { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="form-wrapper">
+      <div id="signup-form">
+        <h2>Sign up</h2>
+        <form id="signupForm" autocomplete="off">
+          <div class="input-group">
+            <input type="text" placeholder="Username" id="username" name="username" required />
+            <div id="usernameFeedback" class="feedback"></div>
+          </div>
+
+          <div class="input-group">
+            <input type="password" placeholder="Password" id="password" name="password" required autocomplete="new-password" />
+            <div id="passwordFeedback" class="feedback"></div>
+          </div>
+
+          <div class="input-group">
+            <input type="email" placeholder="Email" id="email" name="email" required />
+          </div>
+
+          <div class="input-group">
+            <input type="number" placeholder="Phone number" id="phone" name="phone" required/>
+          </div>
+
+          <div class="remember">
+            <input type="checkbox" id="terms" />
+            <label for="terms">I accept all terms &amp; conditions</label>
+          </div>
+
+          <button type="submit" id="signupButton" disabled>Sign up</button>
+        </form>
+      </div>
+
+      <div id="thank-you" style="display:none;">
+        <h2>Thank You for Signing Up!</h2>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simulated existing usernames
+    const existingUsernames = ['testuser', 'admin', 'example'];
+  
+    // password strength: checks length, upper, number, symbol
+    function checkPasswordStrength(password) {
+      if (!password) return '';
+      let score = 0;
+      if (password.length >= 8) score++;
+      if (/[A-Z]/.test(password)) score++;
+      if (/[0-9]/.test(password)) score++;
+      if (/[^A-Za-z0-9]/.test(password)) score++;
+      if (score >= 3) return 'Strong';
+      if (score === 2) return 'Moderate';
+      return 'Weak';
+    }
+  
+    // place caret at end
+    function placeCaretAtEnd(el) {
+      try {
+        const len = el.value.length;
+        el.setSelectionRange(len, len);
+      } catch (err) {}
+    }
+  
+    function checkFormCompletion() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const email    = document.getElementById('email').value.trim();
+      const phone    = document.getElementById('phone').value.trim();
+      const terms    = document.getElementById('terms').checked;
+  
+      const usernameFeedback = document.getElementById('usernameFeedback');
+      const passwordFeedback = document.getElementById('passwordFeedback');
+      const signupButton     = document.getElementById('signupButton');
+  
+      // Username uniqueness check
+      if (username && existingUsernames.includes(username.toLowerCase())) {
+        usernameFeedback.textContent = 'Username is already taken';
+        usernameFeedback.classList.remove('valid');
+      } else if (username) {
+        usernameFeedback.textContent = '';
+        usernameFeedback.classList.add('valid');
+      } else {
+        usernameFeedback.textContent = '';
+        usernameFeedback.classList.remove('valid');
+      }
+  
+      // Password strength
+      if (password) {
+        const strength = checkPasswordStrength(password);
+        passwordFeedback.textContent = 'Password Strength: ' + strength;
+        if (strength === 'Strong') {
+          passwordFeedback.classList.add('valid');
+        } else {
+          passwordFeedback.classList.remove('valid');
+        }
+      } else {
+        passwordFeedback.textContent = '';
+        passwordFeedback.classList.remove('valid');
+      }
+  
+      // Enable button only if all valid
+      if (
+        username &&
+        password &&
+        email &&
+        phone &&
+        terms &&
+        !existingUsernames.includes(username.toLowerCase())
+      ) {
+        signupButton.disabled = false;
+        signupButton.classList.add('enabled');
+      } else {
+        signupButton.disabled = true;
+        signupButton.classList.remove('enabled');
+      }
+    }
+  
+    // caret handlers
+    const passwordInput = document.getElementById('password');
+    passwordInput.addEventListener('focus', e => {
+      setTimeout(() => placeCaretAtEnd(e.target), 0);
+    });
+    passwordInput.addEventListener('click', e => {
+      setTimeout(() => placeCaretAtEnd(e.target), 0);
+    });
+    // input validation
+    document.getElementById('signupForm').addEventListener('input', checkFormCompletion);
+    document.getElementById('signupForm').addEventListener('change', checkFormCompletion);
+  
+    // Cookie helpers
+    function setCookie(name, value, days) {
+      var expires = "";
+      if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie = name + "=" + (value || "") + expires + "; path=/";
+    }
+    function getCookie(name) {
+      var nameEQ = name + "=";
+      var ca = document.cookie.split(';');
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+      }
+      return null;
+    }
+  
+    // Redirect if cookie exists
+    document.addEventListener('DOMContentLoaded', function () {
+      if (getCookie('userSignedUp')) {
+        window.location.href = 'pages/projectsdisplay.html';
+      }
+    });
+  
+    // ✅ Final Submit Handler (backend + cookie + redirect)
+    document.getElementById('signupForm').addEventListener('submit', async function (event) {
+      event.preventDefault();
+  
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const email    = document.getElementById('email').value.trim();
+      const phone    = document.getElementById('phone').value.trim();
+      const terms    = document.getElementById('terms').checked;
+  
+      if (!terms) {
+        alert("⚠️ You must accept the terms & conditions.");
+        return;
+      }
+  
+      try {
+        const res = await fetch("http://localhost:5000/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, email, password, phone })
+        });
+  
+        const data = await res.json();
+  
+        if (res.ok) {
+          alert("✅ " + data.message);
+          // Save cookie and redirect
+          setCookie('userSignedUp', 'true', 7);
+          window.location.href = 'pages/projectsdisplay.html';
+        } else {
+          alert("❌ Signup failed: " + (data.message || "Invalid data"));
+        }
+      } catch (error) {
+        console.error(error);
+        alert("❌ Could not connect to server");
+      }
+    });
+  </script>
+  
+</body>
+</html>
