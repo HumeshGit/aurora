@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #141E30, #243B55);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: #2e2e2e;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .container:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+        }
+        h2 {
+            text-align: center;
+            color: #4caf50;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .question h3 {
+            color: #ff9800;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+        .options li {
+            margin: 10px 0;
+            padding: 10px;
+            background: #3e3e3e;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .options li:hover {
+            background: #505050;
+        }
+        .options input {
+            margin-right: 10px;
+        }
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            color: #ffffff;
+            font-size: 1rem;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        .btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        .btn-prev {
+            background-color: #f44336;
+        }
+        .btn-next {
+            background-color: #4caf50;
+        }
+        .results {
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+        .results h3 {
+            color: #4caf50;
+            font-size: 1.5rem;
+        }
+        .results p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+        /* Loading Screen Styles */
+        #loadingScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #loadingScreen h2 {
+            color: #ff9800;
+            margin-bottom: 10px;
+        }
+        #loadingScreen p {
+            font-size: 1.2rem;
+        }
+        /* Loading Bar Styles */
+        #loadingBarContainer {
+            width: 80%;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        #loadingBar {
+            width: 0%;
+            height: 100%;
+            background: #4caf50;
+            transition: width 1s linear;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen">
+        <h2>Wait 30s</h2>
+        <p>Data loading... <span id="countdown">30</span> seconds</p>
+        <div id="loadingBarContainer">
+            <div id="loadingBar"></div>
+        </div>
+    </div>
+    
+    <!-- Quiz Container -->
+    <div class="container" id="quizContainer" style="display: none;">
+        <h2>Quiz</h2>
+        <div id="questionContainer"></div>
+        <div class="btn-container">
+            <button class="btn btn-prev" id="prevBtn" disabled>Previous</button>
+            <button class="btn btn-next" id="nextBtn">Next</button>
+        </div>
+        <div class="results" id="resultsContainer">
+            <h3>Results</h3>
+            <p id="resultsText"></p>
+            <button class="btn btn-prev" onclick="redirectToHome()">Back</button>
+        </div>
+    </div>
+
+    <script>
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let quizData =[];
+
+        const questionContainer = document.getElementById('questionContainer');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const resultsText = document.getElementById('resultsText');
+        const loadingScreen = document.getElementById('loadingScreen');
+        const countdownElement = document.getElementById('countdown');
+        const loadingBar = document.getElementById('loadingBar');
+
+
+        async function fetchQuizData() {
+        try {
+            const response = await fetch('http://localhost:5000/api/quiz'); // Replace with your server URL
+            if (!response.ok) throw new Error('Network response was not ok');
+            quizData = await response.json();
+
+            // After data is fetched, start quiz
+            loadingScreen.style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            loadQuestion(currentQuestionIndex);
+        } catch (error) {
+            console.error('Error fetching quiz data:', error);
+            document.getElementById('quizContainer').innerHTML = "<p>Failed to load quiz data. Please try again later.</p>";
+        }
+    }
+
+        function loadQuestion(index) {
+            const questionData = quizData[index];
+            questionContainer.innerHTML = `
+                <div class="question">
+                    <h3>${index + 1}. ${questionData.question}</h3>
+                    <ul class="options">
+                        ${questionData.options.map((option, i) => `
+                            <li>
+                                <input type="radio" id="option${i}" name="quizOption" value="${i}">
+                                <label for="option${i}">${option}</label>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        function showResults() {
+            resultsContainer.style.display = 'block';
+            questionContainer.style.display = 'none';
+            document.querySelector('.btn-container').style.display = 'none';
+            resultsText.innerText = `You scored ${score} out of ${quizData.length}!`;
+        }
+
+        function handleNextQuestion() {
+            const selectedOption = document.querySelector('input[name="quizOption"]:checked');
+            if (selectedOption && parseInt(selectedOption.value) === quizData[currentQuestionIndex].answer) {
+                score++;
+            }
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion(currentQuestionIndex);
+                prevBtn.disabled = false;
+                if (currentQuestionIndex === quizData.length - 1) {
+                    nextBtn.textContent = 'Submit';
+                }
+            } else {
+                showResults();
+            }
+        }
+
+        function handlePrevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion(currentQuestionIndex);
+                nextBtn.textContent = 'Next';
+                if (currentQuestionIndex === 0) {
+                    prevBtn.disabled = true;
+                }
+            }
+        }
+
+        function redirectToHome() {
+            startLoading("Returning to home page...", "projectsdisplay.html");
+        }
+
+        function startLoading(message, redirectUrl) {
+            loadingScreen.style.display = 'flex';
+            document.querySelector('#loadingScreen h2').innerText = message;
+            let countdown = 0;
+
+            // Reset loading bar
+            loadingBar.style.width = '0%';
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                countdownElement.innerText = countdown;
+                loadingBar.style.width = `${(30 - countdown) / 30 * 100}%`;// Update loading bar width
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    if (redirectUrl) {
+                        window.location.href = redirectUrl;
+                    } else {
+                        loadingScreen.style.display = 'none';
+                        quizContainer.style.display = 'block';
+                    }
+                }
+            }, 1000);
+        }
+
+        // Start with loading screen
+        startLoading("Wait 30s - Data loading...", null);
+
+        // Event listeners
+        nextBtn.addEventListener('click', handleNextQuestion);
+        prevBtn.addEventListener('click', handlePrevQuestion);
+        fetchQuizData();
+    </script>
+</body>
+</html>

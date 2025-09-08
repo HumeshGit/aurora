@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Writer Tools</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: auto;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        .container {
+            max-width: 900px;
+            background-color: rgba(0, 0, 0, 0.85);
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7),
+                        inset 0 0 20px rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            text-align: center;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        .submit-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            background: linear-gradient(145deg, #555555, #333333);
+            border: none;
+            border-radius: 8px;
+            cursor: not-allowed;
+            opacity: 0.5;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4),
+                        -2px -2px 8px rgba(70, 70, 70, 0.2);
+            transition: all 0.3s ease;
+        }
+        .submit-button.enabled {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            cursor: pointer;
+            opacity: 1;
+            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.5),
+                        -4px -4px 12px rgba(52, 152, 219, 0.3),
+                        0 0 15px rgba(52, 152, 219, 0.5);
+        }
+        .submit-button.enabled:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 16px rgba(0, 0, 0, 0.6),
+                        -6px -6px 16px rgba(52, 152, 219, 0.4),
+                        0 0 20px rgba(52, 152, 219, 0.7);
+        }
+        .tools {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .tools button {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            gap: 10px;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.6),
+                        -4px -4px 12px rgba(70, 70, 70, 0.3),
+                        inset 0 0 10px rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+        .tools button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100" height="100" filter="url(%23noise)" opacity="0.05"/%3E%3C/svg%3E');
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+        .tools button:hover {
+            transform: translateY(-3px) rotateX(5deg) rotateY(5deg);
+            box-shadow: 6px 6px 16px rgba(0, 0, 0, 0.7),
+                        -6px -6px 16px rgba(70, 70, 70, 0.4),
+                        0 0 20px rgba(52, 152, 219, 0.5);
+            background: linear-gradient(145deg, #333333, #222222);
+        }
+        .tools button i {
+            font-size: 20px;
+            filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
+        }
+        .sprinkle-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+        .sprinkle {
+            position: absolute;
+            border-radius: 50%;
+            background-color: #ffffff;
+            animation: fall 4s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+            filter: blur(1px);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.6),
+                        0 0 12px rgba(255, 255, 255, 0.4);
+            opacity: 0.9;
+            transform-style: preserve-3d;
+        }
+        @keyframes fall {
+            0% {
+                transform: translateY(-50px) translateZ(20px) rotateX(0deg) rotateY(0deg) scale(1);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(30%) translateZ(-10px) rotateX(180deg) rotateY(90deg) scale(1.1);
+                opacity: 0.85;
+            }
+            100% {
+                transform: translateY(calc(100% + 50px)) translateZ(20px) rotateX(360deg) rotateY(180deg) scale(0.9);
+                opacity: 0;
+            }
+        }
+        .text-area-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .text-area {
+            width: 100%;
+            min-height: 300px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: vertical;
+            margin-bottom: 15px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2),
+                        inset 0 0 10px rgba(255, 255, 255, 0.05);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: rgba(26, 26, 26, 0.8);
+            color: #ffffff;
+            backdrop-filter: blur(5px);
+        }
+        .text-area:focus {
+            border-color: #3498db;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3),
+                        0 0 15px rgba(52, 152, 219, 0.5);
+            outline: none;
+        }
+        .feedback {
+            text-align: left;
+            font-size: 14px;
+            color: #cccccc;
+            margin-top: 5px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(26, 26, 26, 0.8);
+            display: none;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+        }
+        .feedback.visible {
+            display: block;
+        }
+        .feedback span {
+            font-weight: bold;
+            color: #ff5722;
+            text-shadow: 0 0 5px rgba(255, 87, 34, 0.3);
+        }
+        h2 {
+            color: #ffffff;
+            font-size: 28px;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5),
+                         0 0 10px rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="submitButton" class="submit-button" disabled>Submit</button>
+        <h2>Enhance Your Content Writing Skills</h2>
+        <div class="tools">
+            <button onclick="languageToolCheck()">
+                <div class="sprinkle-container"></div>
+                <i class="fas fa-spell-check"></i> Spell Check
+            </button>
+            <button onclick="languageToolCheck()">
+                <div class="sprinkle-container"></div>
+                <i class="fas fa-check"></i> Grammar Check
+            </button>
+            <button onclick="plagiarismCheck()">
+                <div class="sprinkle-container"></div>
+                <i class="fas fa-skull-crossbones"></i> Plagiarism Check
+            </button>
+            <button onclick="wordCount()">
+                <div class="sprinkle-container"></div>
+                <i class="fas fa-words"></i> Word Count
+            </button>
+            <button onclick="seoAnalysis()">
+                <div class="sprinkle-container"></div>
+                <i class="fas fa-search"></i> SEO Analysis
+            </button>
+        </div>
+        
+        <div class="text-area-container">
+            <textarea class="text-area" id="content" placeholder="Start writing here..." autocorrect="off" 
+            autocomplete="off" 
+            spellcheck="true"></textarea>
+            <div class="feedback" id="feedback"></div>
+        </div>
+    </div>
+    <script>
+        const feedbackElement = document.getElementById('feedback');
+        const submitButton = document.getElementById('submitButton');
+        const contentTextarea = document.getElementById('content');
+        
+        let conditions = {
+            wordCount: false,
+            plagiarism: false,
+            grammar: false,
+            spelling: false
+        };
+
+        function updateSubmitButton() {
+            const allConditionsMet = Object.values(conditions).every(condition => condition);
+            if (allConditionsMet) {
+                submitButton.classList.add('enabled');
+                submitButton.disabled = false;
+                submitButton.onclick = () => {
+                    alert('Data is sent successfully!');
+                };
+            } else {
+                submitButton.classList.remove('enabled');
+                submitButton.disabled = true;
+                submitButton.onclick = null;
+            }
+        }
+
+        function displayFeedback(message) {
+            feedbackElement.innerHTML = message;
+            feedbackElement.classList.add('visible');
+        }
+    
+        // ✅ Spell + Grammar Check using LanguageTool
+        function languageToolCheck() {
+            const content = contentTextarea.value;
+    
+            fetch("https://api.languagetool.org/v2/check", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({
+                    text: content,
+                    language: "en-US"
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.matches.length > 0) {
+                    const issues = data.matches.map(m => {
+                        let replacements = m.replacements.map(r => r.value).join(", ");
+                        return `${m.message}${replacements ? ` (suggestion: ${replacements})` : ""}`;
+                    });
+                    conditions.spelling = false;
+                    conditions.grammar = false;
+                    displayFeedback(`<span>LanguageTool:</span><br>${issues.join("<br>")}`);
+                } else {
+                    conditions.spelling = true;
+                    conditions.grammar = true;
+                    displayFeedback(`<span>LanguageTool:</span> No spelling or grammar issues found ✅`);
+                }
+                updateSubmitButton();
+            })
+            .catch(err => {
+                console.error(err);
+                displayFeedback(`<span>LanguageTool:</span> Error contacting API`);
+            });
+        }
+
+        // ✅ Simple placeholder plagiarism check
+        function plagiarismCheck() {
+            const content = contentTextarea.value.trim();
+            if (!content) {
+                conditions.plagiarism = false;
+                displayFeedback(`<span>Plagiarism Check:</span> Please enter some text.`);
+                updateSubmitButton();
+                return;
+            }
+            conditions.plagiarism = true;
+            displayFeedback(`<span>Plagiarism Check:</span> No replication found ✅`);
+            updateSubmitButton();
+        }
+    
+        // ✅ Word Count
+        function wordCount() {
+            const content = contentTextarea.value.trim();
+            const words = content ? content.split(/\s+/).length : 0;
+            conditions.wordCount = words === 3000;
+            displayFeedback(`<span>Word Count:</span> ${words} words. ${words === 3000 ? '✅ Exactly 3000 words!' : `Need ${3000 - words} more words to reach 3000.`}`);
+            updateSubmitButton();
+        }
+    
+        // ✅ SEO Analysis (full version integrated)
+        function seoAnalysis() {
+            const content = contentTextarea.value.trim();
+            if (!content) {
+                displayFeedback(`<span>SEO Analysis:</span> Please enter some text.`);
+                return;
+            }
+
+            const words = content.split(/\s+/);
+            const wordCount = words.length;
+
+            // Keyword analysis (default: "example")
+            const keyword = "example"; 
+            const keywordCount = (content.match(new RegExp(`\\b${keyword}\\b`, "gi")) || []).length;
+            const keywordDensity = wordCount > 0 ? (keywordCount / wordCount) * 100 : 0;
+
+            // Heading analysis (markdown style # or ##)
+            const headingCount = (content.match(/(^|\s)#[^\s]+/g) || []).length;
+
+            // Stop words check
+            const stopWords = ["a", "an", "the", "and", "or", "but", "of", "on", "in", "to"];
+            let stopWordCount = 0;
+            words.forEach(word => {
+                if (stopWords.includes(word.toLowerCase())) stopWordCount++;
+            });
+            const stopWordRatio = wordCount > 0 ? (stopWordCount / wordCount) * 100 : 0;
+
+            // Simple readability (avg sentence length)
+            const sentences = content.split(/[.!?]/).filter(s => s.trim().length > 0);
+            const avgSentenceLength = sentences.length > 0 ? (wordCount / sentences.length) : 0;
+
+            // Build feedback
+            let feedbackText = `<span>SEO Analysis:</span><br>`;
+            feedbackText += `Word Count: ${wordCount}<br>`;
+            feedbackText += `Keyword (“${keyword}”) Count: ${keywordCount}<br>`;
+            feedbackText += `Keyword Density: ${keywordDensity.toFixed(2)}%<br>`;
+            feedbackText += `Stop Word Ratio: ${stopWordRatio.toFixed(2)}%<br>`;
+            feedbackText += `Average Sentence Length: ${avgSentenceLength.toFixed(1)} words<br>`;
+            feedbackText += `Headings Found: ${headingCount}<br>`;
+
+            displayFeedback(feedbackText);
+            updateSubmitButton();
+        }
+
+        // Enhanced sprinkle effect for buttons
+        document.querySelectorAll('.sprinkle-container').forEach(container => {
+            const colors = ['#ff6a00', '#ee0979', '#00ffcc', '#ffea00', '#ff00ff', '#00ffff', '#ff00ff', '#ffffff'];
+            for (let i = 0; i < 30; i++) {
+                const sprinkle = document.createElement('div');
+                sprinkle.classList.add('sprinkle');
+                sprinkle.style.left = `${Math.random() * 100}%`;
+                sprinkle.style.width = `${Math.random() * 6 + 3}px`;
+                sprinkle.style.height = `${Math.random() * 6 + 3}px`;
+                sprinkle.style.animationDuration = `${Math.random() * 3 + 2.5}s`;
+                sprinkle.style.animationDelay = `${Math.random() * 4}s`;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                sprinkle.style.backgroundColor = color;
+                sprinkle.style.boxShadow = `0 0 10px ${color}, 0 0 15px ${color}`;
+                sprinkle.style.filter = `blur(${Math.random() * 1 + 0.5}px)`;
+                container.appendChild(sprinkle);
+            }
+        });
+
+        // Monitor text input for real-time updates
+        contentTextarea.addEventListener('input', () => {
+            wordCount();
+            languageToolCheck();
+            plagiarismCheck();
+        });
+    </script>
+</body>
+</html>

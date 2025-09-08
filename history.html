@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Activity History</title>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .history-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-header, .history-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-header div, .history-row div {
+            flex: 1;
+            text-align: center;
+            padding: 5px;
+            border-right: 1px solid #ddd;
+        }
+
+        .history-header div:last-child, .history-row div:last-child {
+            border-right: none;
+        }
+
+        .history-row {
+            background: #e9e9e9;
+        }
+
+        .history-row .status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .history-row .status i {
+            margin-left: 5px;
+        }
+
+        /* Specific styles for time period */
+        .history-row .time-period {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .history-row .time-period i {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>User Activity History</h1>
+    <div class="history-container">
+        <!-- Column headers -->
+        <div class="history-header">
+            <div>User Name</div>
+            <div>Project Name</div>
+            <div>Time Period</div>
+            <div>Status</div>
+        </div>
+
+        <!-- Data rows -->
+        <div class="history-row">
+            <div>John Doe</div>
+            <div>Content Write</div>
+            <div class="time-period">
+                <i class='bx bx-time'></i> 60 mins
+            </div>
+            <div class="status">
+                Failed to Send <i class='bx bx-x-circle' style="color: red;"></i>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

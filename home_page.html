@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Website</title>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        /* Base style*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    overflow-x: hidden;
+     /* Allow horizontal scrolling */
+    background-image: url(/aurora.jpg);
+    background-repeat: no-repeat;   /* 🔹 prevent repeating */
+    background-size: cover;         /* 🔹 scale to cover container */
+    background-position: center; 
+}
+
+/* Navigation Menu */
+.menu-bar {
+    background-color: rgba(0, 100, 0, 0.432);
+    padding: 15px 0;
+    text-align: center;
+}
+
+.menu-bar ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin:auto;
+    padding: 0;
+}
+
+.menu-bar ul li a {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    display: block;
+}
+
+.menu-bar ul li:hover a {
+    background: #2bab0d;
+}
+/*responisve menu down navigation bar */
+/* Adjust the menu-bar for smaller screens */
+@media (max-width: 360px) {
+    .menu-bar ul {
+        flex-direction: row; /* Ensure the buttons are in a row */
+        justify-content: space-between; /* Distribute buttons evenly */
+        gap: 5px; /* Smaller gap between buttons */
+        padding: 0 10px; /* Add some padding */
+    }
+
+    .menu-bar ul li {
+        width: auto; /* Allow buttons to adjust their width */
+        flex: 1; /* Make each button take up equal space */
+    }
+
+    .menu-bar ul li a {
+        padding: 10px 5px; /* Adjust padding for smaller screens */
+        font-size: 12px; /* Adjust font size for smaller screens */
+    }
+}
+
+/* Main Image Section */
+.image-container {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    overflow: hidden;
+}
+
+.image-container img {
+    width: 100%;
+    height: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    object-fit: cover;
+}
+
+.text {
+    position: absolute;
+    top: 30%;
+    left: 10%;
+    transform: translateY(-50%);
+    text-align: left;
+    color: #fff; /* Set to white for contrast */
+}
+
+.text h1 {
+    font-size: 50px;
+    margin-bottom: 20px;
+}
+
+.text p {
+    font-size: 20px;
+    font-weight: 200;
+    margin-bottom: 10px;
+}
+
+.text .lol a {
+    display: inline-block;
+    border: 1px solid black;
+    padding: 15px 30px;
+    background-color: #000;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 20px;
+    transition: background-color 0.3s;
+}
+
+.text .lol a:hover {
+    background-color: #444;
+}
+
+/* Cards Section */
+.cards-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* Allow wrapping of cards if viewport is narrow */
+    padding: 50px 0;
+    gap: 20px; /* Space between cards */
+}
+
+.glow-area {
+    width: 250px;
+    height: 350px;
+    background-color: #000;
+    border-radius: 15px;
+    padding: 15px;
+    color: #fff;
+    transition: transform 0.3s, box-shadow 0.3s ease;
+    position: relative;
+    z-index: 1;
+    margin: 20px;
+}
+
+.glow-area p {
+    margin-top: 20px;
+}
+
+.glow-area:hover {
+    transform: scale(1.05);
+}
+
+/* Sprinkle styles */
+.sprinkle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: sprinkleAnimation 0.6s ease-out forwards;
+    mix-blend-mode: screen;
+    z-index: 0;
+}
+
+p.setting {
+    margin-top: 50px;
+    text-align: center;
+}
+
+@keyframes sprinkleAnimation {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.5);
+    }
+}
+
+/* Individual card glow colors */
+.card1:hover {
+    box-shadow: 0 0 20px 10px rgba(0, 255, 255, 0.7),
+                0 0 30px 15px rgba(0, 255, 255, 0.5),
+                0 0 40px 20px rgba(0, 255, 255, 0.3);
+}
+
+.card2:hover {
+    box-shadow: 0 0 20px 10px rgba(255, 0, 255, 0.7),
+                0 0 30px 15px rgba(255, 0, 255, 0.5),
+                0 0 40px 20px rgba(255, 0, 255, 0.3);
+}
+
+.card3:hover {
+    box-shadow: 0 0 20px 10px rgba(255, 255, 0, 0.7),
+                0 0 30px 15px rgba(255, 255, 0, 0.5),
+                0 0 40px 20px rgba(255, 255, 0, 0.3);
+}
+
+.card4:hover {
+    box-shadow: 0 0 20px 10px rgba(0, 255, 100, 0.7),
+                0 0 30px 15px rgba(0, 255, 100, 0.5),
+                0 0 40px 20px rgba(0, 255, 100, 0.3);
+}
+
+/* Horizontal Text Section */
+.horizontal-text-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align:auto;
+    white-space: nowrap; /* Prevent text wrapping */
+    padding: 20px;
+    /*background-color: Set green background color */
+    color: #fff;
+    height: 200px;
+    margin-left: auto;
+    margin-bottom: 10px;
+    border-radius: 40px;
+    transition: transform 0.3s, box-shadow 0.3s ease;
+    position: relative;
+}
+
+.horizontal-text-container:hover {
+    transform: scale(1.05);
+}
+
+.horizontal-text-container p {
+    margin-right: 20px; /* Space between text blocks */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .text h1 {
+        font-size: 35px;
+    }
+
+    .text p {
+        font-size: 18px;
+    }
+
+    .glow-area {
+        width: 200px;
+        height: 300px;
+    }
+
+    .horizontal-text-container {
+        font-size: 14px; /* Adjust font size for smaller screens */
+        height: 150px;
+        width:auto;
+        margin: 0 auto; /* Center horizontally */
+    }
+}
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    margin-left: 20px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.1);
+    color: #ffcc00; /* subtle hover glow */
+}
+
+.menu-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* ✅ keeps logo left, menu right */
+    background-color: rgb(0, 100, 0);
+    padding: 10px 20px;
+}
+
+
+    </style>
+</head>
+<body>
+    
+    <!-- Navigation Menu -->
+    <div class="menu-bar" id="responsive-width">
+        <div class="logo">Aurora</div>
+        <ul>
+            <li><a href="/"><i class='bx bxs-home'></i>Home</a></li>
+            <li><a href="/about_us.html"><i class='bx bxs-message-rounded-dots'></i>About Us</a></li>
+            <li><a href="/privicy policy.html"><i class='bx bxs-tree-alt'></i>privacy & policy</a></li>
+            <li><a href="/login.html">Login</a></li>
+            <li><a href="/sign-up.html">Sign up</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Image Section -->
+    <div class="image-container">
+        
+        <div class="text">
+            <h1>Today Everyone can <br>Work Online.</h1>
+            <p>Get paid to invite friends<br>Your attention is valuable!</p>
+            <p class="lol"><a href="/sign-up.html">Sign up Free</a></p>
+        </div>
+    </div>
+
+    <!-- Cards Section -->
+    <div class="cards-container">
+        <div class="glow-area card1">
+            <p class="basic">Welcome to this website.</p>
+            <p class="basic"><br>your seeking for skill enhancing platform</p>
+            <p class="basic"><br>This is the right choice for you. </p>
+            <p class="basic">Gladly Welcome
+            </p>
+        </div>
+        <div class="glow-area card2">
+            <p class="basic">More updates available</p>
+            <p class="basic"><br>We are here to update you better</p>
+            <p class="basic"><br>Stay with us to get up-to-date</p>
+            <p class="basic"">Get Started</p>
+        </div>
+        <div class="glow-area card3">
+            <p class="basic">Tutorial training</p>
+            <p class="money"><br>we are here with our services </p>
+            <p class="set"><br>train you better with our Tutorials</p>
+            <p class="setting">You can know more about our services on future.Stay tuned.</p>
+        </div>
+    </div>
+
+    <!-- Horizontal Text Section -->
+    <div class="horizontal-text-container card4">
+        <p> Web content is the text, visual or audio content that <br> 
+            made available online and user encountered as part <br> 
+            the online usage and experience on websites. 
+            <br>It may include text, images, sounds <br>
+            and audio, online videos, among other<br>
+             items placed within web pages.</p>
+    </div>
+
+    <script>
+        // Function to create sprinkles with bright colors
+        function createSprinkles(event, colorRange) {
+            const sprinkle = document.createElement('div');
+            sprinkle.className = 'sprinkle';
+
+            // Use a higher range for bright sprinkles
+            const r = Math.floor(Math.random() * (255 - colorRange.r) + colorRange.r);
+            const g = Math.floor(Math.random() * (255 - colorRange.g) + colorRange.g);
+            const b = Math.floor(Math.random() * (255 - colorRange.b) + colorRange.b);
+            sprinkle.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.9)`;
+
+            // Position the sprinkle relative to the card
+            const rect = event.currentTarget.getBoundingClientRect();
+            sprinkle.style.left = `${event.clientX - rect.left - 3}px`; // Adjust for sprinkle size
+            sprinkle.style.top = `${event.clientY - rect.top - 3}px`;
+
+            // Append the sprinkle to the card
+            event.currentTarget.appendChild(sprinkle);
+
+            // Remove the sprinkle after the animation ends
+            sprinkle.addEventListener('animationend', () => {
+                sprinkle.remove();
+            });
+        }
+
+        // Event listeners for each card with specific color ranges for bright sprinkles
+        const card1 = document.querySelector('.card1');
+        const card2 = document.querySelector('.card2');
+        const card3 = document.querySelector('.card3');
+        const card4 = document.querySelector('.card4');
+
+        card1.addEventListener('mousemove', (e) => createSprinkles(e, { r: 0, g: 255, b: 255 })); // Bright Cyan
+        card2.addEventListener('mousemove', (e) => createSprinkles(e, { r: 255, g: 0, b: 255 })); // Bright Magenta
+        card3.addEventListener('mousemove', (e) => createSprinkles(e, { r: 255, g: 255, b: 0 })); // Bright Yellow
+        card4.addEventListener('mousemove', (e) => createSprinkles(e, { r: 0, g: 255, b: 100 })); // Bright Green
+        var screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        var elements = document.querySelectorAll('#responsive-width');
+        elements.forEach(function(element) {
+            element.style.width = screenWidth + 'px';
+        });
+
+    </script>
+</body>
+</html>
+

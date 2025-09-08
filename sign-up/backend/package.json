@@ -1,0 +1,22 @@
+{
+  "name": "signup-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    
+    "start": "node server.js"
+  },
+  
+    "dependencies": {
+      "express": "^4.19.0",
+      "mongoose": "^8.0.0",
+      "dotenv": "^16.3.1",
+      "cors": "^2.8.5",
+      "helmet": "^7.0.0",
+      "express-rate-limit": "^7.0.0",
+      "express-validator": "^7.0.1",
+      "bcrypt": "^5.1.0"
+    }
+  }
+  
+  

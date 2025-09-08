@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design a News Article</title>
+    <link href="https://unpkg.com/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        #toolbar {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .workspace-container {
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid #ccc;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .workspace {
+            width: 100%;
+            padding: 20px;
+            position: relative;
+        }
+        #imageWorkspace {
+            min-height: 200px;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        #imageInput {
+            display: none;
+        }
+        #imageWorkspace img {
+            max-width: 100%;
+            height: auto;
+            cursor: pointer;
+        }
+        #contentWorkspace {
+            min-height: 200px;
+        }
+        .toolbar-button {
+            margin: 5px;
+            padding: 10px;
+            border: none;
+            background-color: transparent;
+            color: #007bff;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .toolbar-button:hover {
+            color: #0056b3;
+        }
+        .toolbar-color-input {
+            margin: 5px;
+            padding: 5px;
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .icon {
+            font-size: 24px;
+        }
+        .toolbar-label {
+            display: flex;
+            align-items: center;
+        }
+        .toolbar-select {
+            margin: 5px;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #imgSizeControls {
+            display: none;
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 5px;
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+        #imgSizeControls input {
+            width: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Design a News Article</h1>
+    <div id="toolbar">
+        <button class="toolbar-button" onclick="addImage()"><i class='bx bx-image-add icon'></i></button>
+        <input type="file" id="imageInput" accept="image/*" onchange="insertImage(event)">
+        <div class="toolbar-label">
+            <label for="fontSize">Font Size:</label>
+            <input type="number" id="fontSize" class="toolbar-input" value="16" style="width: 60px;">
+            <button class="toolbar-button" onclick="applyFontSize()"><i class='bx bx-check icon'></i></button>
+        </div>
+        <div class="toolbar-label">
+            <button class="toolbar-button"><i class='bx bx-font icon' style="color:#000000;"></i></button>
+            <input type="color" id="fontColor" class="toolbar-color-input" value="#000000" onchange="setFontColor(this.value)">
+        </div>
+        <div class="toolbar-label">
+            <button class="toolbar-button"><i class='bx bx-highlight icon' style="color:#ffffff;"></i></button>
+            <input type="color" id="bgColor" class="toolbar-color-input" value="#ffffff" onchange="setBgColor(this.value)">
+        </div>
+        <button class="toolbar-button" onclick="setIndentation()"><i class='bx bx-indent icon'></i></button>
+        <button class="toolbar-button" onclick="removeIndentation()"><i class='bx bx-outdent icon'></i></button>
+        <div class="toolbar-label">
+            <label for="fontFamily">Font Family:</label>
+            <select id="fontFamily" class="toolbar-select" onchange="setFontFamily(this.value)">
+                <option value="Arial">Arial</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Verdana">Verdana</option>
+            </select>
+        </div>
+        <button class="toolbar-button" onclick="document.execCommand('bold', false, '');"><i class='bx bx-bold icon'></i></button>
+        <button class="toolbar-button" onclick="document.execCommand('italic', false, '');"><i class='bx bx-italic icon'></i></button>
+        <button class="toolbar-button" onclick="document.execCommand('underline', false, '');"><i class='bx bx-underline icon'></i></button>
+        <button class="toolbar-button" onclick="document.execCommand('justifyLeft', false, '');"><i class='bx bx-align-left icon'></i></button>
+        <button class="toolbar-button" onclick="document.execCommand('justifyCenter', false, '');"><i class='bx bx-align-middle icon'></i></button>
+        <button class="toolbar-button" onclick="document.execCommand('justifyRight', false, '');"><i class='bx bx-align-right icon'></i></button>
+        <button class="toolbar-button" onclick="document.execCommand('insertUnorderedList', false, '');"><i class='bx bx-list-ul icon'></i></button>
+        <button class="toolbar-button" onclick="document.execCommand('insertOrderedList', false, '');"><i class='bx bx-list-ol icon'></i></button>
+    </div>
+    <div class="workspace-container">
+        <div id="imageWorkspace" class="workspace" contenteditable="false">
+            <button class="toolbar-button" onclick="addImage()"><i class='bx bx-image-add icon'></i></button>
+        </div>
+        <div id="contentWorkspace" class="workspace" contenteditable="true" onpaste="return false;"></div>
+    </div>
+    <div id="imgSizeControls">
+        Width: <input type="number" id="imgWidth" value="100" onchange="resizeImage()">px
+        Height: <input type="number" id="imgHeight" value="auto" onchange="resizeImage()">px
+    </div>
+
+    <script>
+        let currentImage;
+
+        function addImage() {
+            document.getElementById('imageInput').click();
+        }
+
+        function insertImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.onclick = () => selectImage(img);
+                    document.getElementById('imageWorkspace').appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function selectImage(img) {
+            currentImage = img;
+            document.getElementById('imgWidth').value = img.width;
+            document.getElementById('imgHeight').value = img.height;
+            document.getElementById('imgSizeControls').style.display = 'block';
+        }
+
+        function resizeImage() {
+            if (currentImage) {
+                currentImage.width = document.getElementById('imgWidth').value;
+                currentImage.height = document.getElementById('imgHeight').value;
+            }
+        }
+
+        function applyFontSize() {
+            const size = document.getElementById('fontSize').value;
+            document.execCommand('fontSize', false, 7); // Temporarily set to the largest font size
+            const fontElements = document.getElementsByTagName("font");
+            for (let i = 0; i < fontElements.length; i++) {
+                if (fontElements[i].size == "7") {
+                    fontElements[i].removeAttribute("size");
+                    fontElements[i].style.fontSize = size + "px";
+                }
+            }
+        }
+
+        function setFontColor(color) {
+            document.execCommand('foreColor', false, color);
+        }
+
+        function setBgColor(color) {
+            document.execCommand('hiliteColor', false, color);
+        }
+
+        function setIndentation() {
+            document.execCommand('indent', false, null);
+        }
+
+        function removeIndentation() {
+            document.execCommand('outdent', false, null);
+        }
+
+        function setFontFamily(fontFamily) {
+            document.execCommand('fontName', false, fontFamily);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile with Icon</title>
+    <!-- Link to Boxicons CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #8e2de2, #4a00e0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+        }
+        .profile-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 350px;
+            position: relative;
+        }
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            background-color: #b2ebf2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 100px;
+            color: #007bff;
+            border: 2px solid #007bff;
+            position: relative;
+        }
+        .profile-pic:hover {
+            cursor: pointer;
+            opacity: 0.8;
+        }
+        .edit-icon {
+            position: absolute;
+            top: 120px; /* Positioned slightly below the profile picture */
+            right: 105px; /* Adjusted for alignment */
+            font-size: 24px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            padding: 5px;
+            cursor: pointer;
+            z-index: 1;
+            color: #007bff;
+            border: 2px solid #007bff;
+        }
+        .edit-menu {
+            display: none;
+            position: absolute;
+            top: 160px;   /* adjust so it's below the pencil */
+            right: 100px; /* align with the edit icon */
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        .edit-menu button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #ffffff;
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.9em;
+            color: #333;
+        }
+        .edit-menu button:hover {
+            background-color: #f0f0f0;
+        }
+        .profile-form input[type="text"], 
+        .profile-form input[type="email"], 
+        .profile-form input[type="tel"], 
+        .profile-form select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            position: relative;
+            z-index: 20;
+        }
+        .profile-form input[type="submit"] {
+            background-color: #28a745;
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        .profile-form input[type="submit"]:hover {
+            background-color: #218838;
+        }
+        h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+        #imageInput {
+            display: none; /* Hidden file input */
+        }
+        .custom-dropdown {
+            position: relative;
+            width: calc(100% - 20px);
+            margin-bottom: 10px;
+            font-size: 1em;
+        }.custom-dropdown {
+            position: relative;
+            width: calc(100% - 20px);
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        .dropdown-selected {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            color: #333;
+            cursor: pointer;
+        }
+        .dropdown-options {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            z-index: 20;
+        }
+        .dropdown-options div {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .dropdown-options div:hover {
+            background-color: #f0f0f0;
+        }
+        .dropdown-selected {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            color: #333;
+            cursor: pointer;
+        }
+        .dropdown-options {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            color: #007bff;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            z-index: 20;
+        }
+        .dropdown-options div {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .dropdown-options div:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-pic" id="profilePic" onclick="triggerFileInput()">
+            <i class="bx bx-user-circle"></i>
+        </div>
+        <i class="bx bx-pencil edit-icon" onclick="toggleEditMenu()"></i>
+        <div class="edit-menu" id="editMenu">
+            <button onclick="triggerFileInput()">Change Photo</button>
+            <button onclick="deletePhoto()">Delete Photo</button>
+        </div>
+        <h2 id="userName">Your Name</h2>
+        <form class="profile-form" onsubmit="return saveProfile(event)">
+            <input type="text" id="nameInput" placeholder="Your Name" required>
+            <input type="email" id="emailInput" placeholder="Your Email" required>
+            <input type="tel" id="phoneInput" placeholder="Your Phone Number" required>
+            <div class="custom-dropdown">
+                <div class="dropdown-selected">Select Gender</div>
+                <div class="dropdown-options">
+                  <div data-value="male">Male</div>
+                  <div data-value="female">Female</div>
+                  <div data-value="other">Other</div>
+                </div>
+              </div>
+              <input type="hidden" name="gender" id="genderInput">              
+            <input type="submit" value="Save Profile">
+        </form>
+        <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)">
+    </div>
+
+    <script>
+        function toggleEditMenu() {
+            const editMenu = document.getElementById('editMenu');
+            editMenu.style.display = editMenu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function triggerFileInput() {
+            document.getElementById('imageInput').click();
+            document.getElementById('editMenu').style.display = 'none'; // Hide the menu after selection
+        }
+
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const profilePic = document.getElementById('profilePic');
+                profilePic.innerHTML = ''; // Remove the icon
+                profilePic.style.backgroundImage = `url(${reader.result})`;
+                profilePic.style.backgroundSize = 'cover';
+                profilePic.style.backgroundPosition = 'center';
+                profilePic.style.border = 'none';
+
+                // Save the image URL to localStorage
+                localStorage.setItem('profilePic', reader.result);
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function deletePhoto() {
+            const profilePic = document.getElementById('profilePic');
+            profilePic.innerHTML = '<i class="bx bx-user-circle"></i>'; // Restore the default icon
+            profilePic.style.backgroundImage = ''; // Remove any background image
+            profilePic.style.backgroundSize = 'initial';
+            profilePic.style.backgroundPosition = 'initial';
+            profilePic.style.border = '2px solid #007bff'; // Optional: Restore border
+            document.getElementById('editMenu').style.display = 'none'; // Hide the menu after deletion
+
+            // Remove the image URL from localStorage
+            localStorage.removeItem('profilePic');
+        }
+
+        function saveProfile(event) {
+            event.preventDefault();
+            const name = document.getElementById('nameInput').value;
+            const email = document.getElementById('emailInput').value;
+            const phone = document.getElementById('phoneInput').value;
+            const gender = document.getElementById('genderInput').value;
+
+            // Save user details to localStorage
+            localStorage.setItem('userName', name);
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userPhone', phone);
+            localStorage.setItem('userGender', gender);
+
+            // Redirect to the profile details page
+            window.location.href = 'savedprofile.html';
+        }
+
+        // Hide the edit menu if the user clicks outside of it
+        window.onclick = function(event) {
+            // Ignore clicks on form fields
+            if (
+                !event.target.matches('.edit-icon') &&
+                !event.target.closest('.edit-menu') &&
+                event.target.tagName !== "SELECT" &&
+                event.target.tagName !== "INPUT" &&
+                event.target.tagName !== "TEXTAREA"
+            ) {
+                const editMenu = document.getElementById('editMenu');
+                editMenu.style.display = 'none';
+            }
+        }
+
+
+        // Load profile picture if available
+        window.onload = function() {
+            const profilePicData = localStorage.getItem('profilePic');
+            if (profilePicData) {
+                const profilePic = document.getElementById('profilePic');
+                profilePic.innerHTML = ''; // Remove the icon
+                profilePic.style.backgroundImage = `url(${profilePicData})`;
+                profilePic.style.backgroundSize = 'cover';
+                profilePic.style.backgroundPosition = 'center';
+                profilePic.style.border = 'none';
+            }
+        }
+        const savedName = localStorage.getItem('userName');
+        const savedEmail = localStorage.getItem('userEmail');
+        const savedPhone = localStorage.getItem('userPhone');
+        const savedGender = localStorage.getItem('userGender');
+        if (savedName) document.getElementById('nameInput').value = savedName;
+        if (savedEmail) document.getElementById('emailInput').value = savedEmail;
+        if (savedPhone) document.getElementById('phoneInput').value = savedPhone;
+        // ✅ Restore gender into dropdown
+        if (savedGender) {
+            const hiddenInput = document.getElementById("genderInput");
+            const selected = document.querySelector(".dropdown-selected");
+            hiddenInput.value = savedGender;
+            // Match display text
+            if (savedGender === "male") selected.textContent = "Male";
+            if (savedGender === "female") selected.textContent = "Female";
+            if (savedGender === "other") selected.textContent = "Other";
+        };
+        document.addEventListener("DOMContentLoaded", () => {
+            const dropdown = document.querySelector(".custom-dropdown");
+            const selected = dropdown.querySelector(".dropdown-selected");
+            const options = dropdown.querySelector(".dropdown-options");
+            const hiddenInput = document.getElementById("genderInput");
+            selected.addEventListener("click", () => {
+                options.style.display = options.style.display === "block" ? "none" : "block";
+            });
+            options.querySelectorAll("div").forEach(option => {
+                option.addEventListener("click", () => {
+                    selected.textContent = option.textContent;
+                    hiddenInput.value = option.dataset.value;
+                    options.style.display = "none";
+                });
+            });
+            // Close dropdown if clicking outside
+            document.addEventListener("click", (e) => {
+                if (!dropdown.contains(e.target)) {
+                    options.style.display = "none";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
